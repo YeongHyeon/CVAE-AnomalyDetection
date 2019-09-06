@@ -20,7 +20,7 @@ class Dataset(object):
         self.x_te = np.ndarray.astype(self.x_te, np.float32)
 
         self.split_dataset()
-        
+
         self.num_tr, self.num_te = self.x_tr.shape[0], self.x_te.shape[0]
         self.idx_tr, self.idx_te = 0, 0
 
@@ -112,7 +112,7 @@ class Dataset(object):
         x_te = (x_te + 1e-12) / self.max_val
 
         terminator = False
-        if(end >= self.idx_te):
+        if(end >= self.num_te):
             terminator = True
             self.idx_te = 0
         else: self.idx_te = end
