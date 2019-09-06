@@ -80,6 +80,7 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
     make_dir(path=os.path.join("results", "tr_resotring"))
     make_dir(path=os.path.join("results", "tr_sampling"))
     make_dir(path=os.path.join("results", "tr_latent"))
+    make_dir(path=os.path.join("results", "tr_latent_walk"))
 
     start_time = time.time()
     iteration = 0
@@ -87,7 +88,8 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
     run_options = tf.compat.v1.RunOptions(trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
     run_metadata = tf.compat.v1.RunMetadata()
 
-    test_size = 100
+    test_sq = 10
+    test_size = test_sq**2
     for epoch in range(epochs):
 
         x_tr, y_tr, _ = dataset.next_train(batch_size=test_size, fix=True) # Initial batch
@@ -106,6 +108,18 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
         save_img(input=x_dump, restore=x_restore1, recon=x_sample1, \
             savename=os.path.join("results", "tr_sampling", "%08d.png" %(epoch)))
 
+        x_values = np.linspace(-3, 3, test_sq)
+        y_values = np.linspace(-3, 3, test_sq)
+        z_latents = None
+        for y_loc, y_val in enumerate(y_values):
+            for x_loc, x_val in enumerate(x_values):
+                z_latent = np.reshape(np.array([y_val, x_val]), (1, neuralnet.z_dim))
+                if(z_latents is None): z_latents = z_latent
+                else: z_latents = np.append(z_latents, z_latent, axis=0)
+        x_samples = sess.run(neuralnet.x_sample, \
+            feed_dict={neuralnet.z:z_latents, neuralnet.batch_size:test_size})
+        plt.imsave(os.path.join("results", "tr_latent_walk", "%08d.png" %(epoch)), dat2canvas(data=x_samples))
+
         while(True):
             x_tr, y_tr, terminator = dataset.next_train(batch_size) # y_tr does not used in this prj.
 
@@ -119,7 +133,7 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
             iteration += 1
             if(terminator): break
 
-        print("Epoch [%d / %d] (%d iteration)  Restore:%.3f, KLD:%.3f, Total:%.3f\n" \
+        print("Epoch [%d / %d] (%d iteration)  Restore:%.3f, KLD:%.3f, Total:%.3f" \
             %(epoch, epochs, iteration, restore, kld, elbo))
         summary_writer.add_run_metadata(run_metadata, 'epoch-%d' % epoch)
 
