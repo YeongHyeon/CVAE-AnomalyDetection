@@ -130,11 +130,13 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
 
         print("Epoch [%d / %d] (%d iteration)  Restore:%.3f, KLD:%.3f, Total:%.3f" \
             %(epoch, epochs, iteration, restore, kld, loss))
+        saver.save(sess, PACK_PATH+"/Checkpoint/model_checker")
         summary_writer.add_run_metadata(run_metadata, 'epoch-%d' % epoch)
 
 def test(sess, saver, neuralnet, dataset, batch_size):
 
     if(os.path.exists(PACK_PATH+"/Checkpoint/model_checker.index")):
+        print("\nRestoring parameters")
         saver.restore(sess, PACK_PATH+"/Checkpoint/model_checker")
 
     print("\nTest...")
@@ -154,7 +156,9 @@ def test(sess, saver, neuralnet, dataset, batch_size):
 
     loss_list = np.asarray(loss_list)
     loss_avg, loss_std = np.average(loss_list), np.std(loss_list)
-    outbound = loss_avg + (loss_std * 3)
+    outbound = loss_avg + (loss_std * 1.5)
+    print("Loss  avg: %.3f, std: %.3f" %(loss_avg, loss_std))
+    print("Outlier boundary: %.3f" %(outbound))
 
     fcsv = open("test-summary.csv", "w")
     fcsv.write("class, loss, outlier\n")
@@ -167,10 +171,14 @@ def test(sess, saver, neuralnet, dataset, batch_size):
 
         outcheck = loss > outbound
         fcsv.write("%d, %.3f, %r\n" %(y_te, loss, outcheck))
+
+        canvas = np.ones((x_te[0].shape[0], x_te[0].shape[1]*2, x_te[0].shape[2]), np.float32)
+        canvas[:, :x_te[0].shape[1], :] = x_te[0]
+        canvas[:, x_te[0].shape[1]:, :] = x_restore[0]
         if(outcheck):
-            plt.imsave(os.path.join("test", "outbound", "%08d.png" %(testnum)), gray2rgb(gray=x_te[0]))
+            plt.imsave(os.path.join("test", "outbound", "%08d.png" %(testnum)), gray2rgb(gray=canvas))
         else:
-            plt.imsave(os.path.join("test", "inbound", "%08d.png" %(testnum)), gray2rgb(gray=x_te[0]))
+            plt.imsave(os.path.join("test", "inbound", "%08d.png" %(testnum)), gray2rgb(gray=canvas))
 
         testnum += 1
 
