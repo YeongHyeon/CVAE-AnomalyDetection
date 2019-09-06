@@ -35,18 +35,16 @@ def dat2canvas(data):
 
     return canvas
 
-def save_img(input, restore, recon, savename=""):
+def save_img(contents, names=["", "", ""], savename=""):
 
-    plt.figure(figsize=(10, 4))
-    plt.subplot(131)
-    plt.title("Input\n(x)")
-    plt.imshow(dat2canvas(data=input))
-    plt.subplot(132)
-    plt.title("Restoration\n(x to x-hat)")
-    plt.imshow(dat2canvas(data=restore))
-    plt.subplot(133)
-    plt.title("Reconstruction\n(z to x-hat)")
-    plt.imshow(dat2canvas(data=recon))
+    num_cont = len(contents)
+    plt.figure(figsize=(5*num_cont+2, 5))
+
+    for i in range(num_cont):
+        plt.subplot(1,num_cont,i+1)
+        plt.title(names[i])
+        plt.imshow(dat2canvas(data=contents[i]))
+
     plt.tight_layout()
     plt.savefig(savename)
     plt.close()
@@ -77,10 +75,8 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
     summary_writer = tf.compat.v1.summary.FileWriter(PACK_PATH+'/Checkpoint', sess.graph)
 
     make_dir(path="results")
-    make_dir(path=os.path.join("results", "tr_resotring"))
-    make_dir(path=os.path.join("results", "tr_sampling"))
-    make_dir(path=os.path.join("results", "tr_latent"))
-    make_dir(path=os.path.join("results", "tr_latent_walk"))
+    result_list = ["tr_latent", "tr_resotring", "tr_latent_walk"]
+    for result_name in result_list: make_dir(path=os.path.join("results", result_name))
 
     start_time = time.time()
     iteration = 0
@@ -88,25 +84,17 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
     run_options = tf.compat.v1.RunOptions(trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
     run_metadata = tf.compat.v1.RunMetadata()
 
-    test_sq = 10
+    test_sq = 20
     test_size = test_sq**2
     for epoch in range(epochs):
 
         x_tr, y_tr, _ = dataset.next_train(batch_size=test_size, fix=True) # Initial batch
-        z_enc = sess.run(neuralnet.z_enc, \
-            feed_dict={neuralnet.x:x_tr, neuralnet.batch_size:x_tr.shape[0]})
+        x_restore, z_enc = sess.run([neuralnet.x_hat, neuralnet.z_enc], \
+            feed_dict={neuralnet.x:x_tr, neuralnet.batch_size:test_size})
         latent_plot(latent=z_enc, y=y_tr, n=dataset.num_class, savename=os.path.join("results", "tr_latent", "%08d.png" %(epoch)))
-        x_restore2, x_sample2 = sess.run([neuralnet.x_hat, neuralnet.x_sample], \
-            feed_dict={neuralnet.x:x_tr, neuralnet.z:z_enc, neuralnet.batch_size:test_size})
-        save_img(input=x_tr, restore=x_restore2, recon=x_sample2, \
+        save_img(contents=[x_tr, x_restore, (x_tr-x_restore)**2], \
+            names=["Input\n(x)", "Restoration\n(x to x-hat)", "Difference"], \
             savename=os.path.join("results", "tr_resotring", "%08d.png" %(epoch)))
-
-        x_dump = np.zeros((test_size, neuralnet.height, neuralnet.width, neuralnet.channel)).astype(np.float32)
-        z_sample = gaussian_sample(mean=0, sigma=1, batch_size=test_size, z_dim=neuralnet.z_dim)
-        x_restore1, x_sample1 = sess.run([neuralnet.x_hat, neuralnet.x_sample], \
-            feed_dict={neuralnet.x:x_dump, neuralnet.z:z_sample, neuralnet.batch_size:test_size})
-        save_img(input=x_dump, restore=x_restore1, recon=x_sample1, \
-            savename=os.path.join("results", "tr_sampling", "%08d.png" %(epoch)))
 
         x_values = np.linspace(-3, 3, test_sq)
         y_values = np.linspace(-3, 3, test_sq)
