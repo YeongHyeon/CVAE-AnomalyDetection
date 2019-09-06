@@ -116,9 +116,6 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
                 feed_dict={neuralnet.x:x_tr, neuralnet.batch_size:x_tr.shape[0]})
             summary_writer.add_summary(summaries, iteration)
 
-            if(iteration % 100 == 0):
-                print("Epoch [%d / %d] (%d iteration)  Restore:%.3f, KLD:%.3f, Total:%.3f" \
-                    %(epoch, epochs, iteration, restore, kld, elbo))
             iteration += 1
             if(terminator): break
 
