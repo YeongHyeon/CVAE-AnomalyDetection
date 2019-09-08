@@ -10,8 +10,13 @@ Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/
 </div>
 
 <div align="center">
-  <img src="./figures/latent_tr.png" width="300"><img src="./figures/latent_walk.png" width="250"><img src="./figures/latent_te.png" width="300">  
-  <p>Latent vector space, and reconstruction result of latent space walking.</p>
+  <img src="./figures/latent_tr.png" width="300"><img src="./figures/latent_walk.png" width="250">
+  <p>Latent vector space of training set, and reconstruction result of latent space walking.</p>
+</div>
+
+<div align="center">
+  <img src="./figures/latent_te.png" width="300">  
+  <p>Latent vector space of test set.</p>
 </div>
 
 ## Environment
