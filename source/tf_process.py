@@ -97,7 +97,8 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
         x_restore, z_enc = sess.run([neuralnet.x_hat, neuralnet.z_enc], \
             feed_dict={neuralnet.x:x_tr, neuralnet.batch_size:x_tr.shape[0]})
         if(neuralnet.z_dim == 2):
-            latent_plot(latent=z_enc, y=y_tr, n=dataset.num_class, savename=os.path.join("results", "tr_latent", "%08d.png" %(epoch)))
+            latent_plot(latent=z_enc, y=y_tr, n=dataset.num_class, \
+                savename=os.path.join("results", "tr_latent", "%08d.png" %(epoch)))
         save_img(contents=[x_tr, x_restore, (x_tr-x_restore)**2], \
             names=["Input\n(x)", "Restoration\n(x to x-hat)", "Difference"], \
             savename=os.path.join("results", "tr_resotring", "%08d.png" %(epoch)))
@@ -163,11 +164,19 @@ def test(sess, saver, neuralnet, dataset, batch_size):
     fcsv = open("test-summary.csv", "w")
     fcsv.write("class, loss, outlier\n")
     testnum = 0
+    z_enc_tot, y_te_tot = None, None
     while(True):
         x_te, y_te, terminator = dataset.next_test(1) # y_te does not used in this prj.
 
-        x_restore, loss = sess.run([neuralnet.x_hat, neuralnet.loss], \
+        x_restore, z_enc, loss = sess.run([neuralnet.x_hat, neuralnet.z_enc, neuralnet.loss], \
             feed_dict={neuralnet.x:x_te, neuralnet.batch_size:x_te.shape[0]})
+
+        if(z_enc_tot is None):
+            z_enc_tot = z_enc
+            y_te_tot = y_te
+        else:
+            z_enc_tot = np.append(z_enc_tot, z_enc, axis=0)
+            y_te_tot = np.append(y_te_tot, y_te, axis=0)
 
         outcheck = loss > outbound
         fcsv.write("%d, %.3f, %r\n" %(y_te, loss, outcheck))
@@ -183,3 +192,7 @@ def test(sess, saver, neuralnet, dataset, batch_size):
         testnum += 1
 
         if(terminator): break
+
+    if(neuralnet.z_dim == 2):
+        latent_plot(latent=z_enc_tot, y=y_te_tot, n=dataset.num_class, \
+            savename=os.path.join("test.png"))
