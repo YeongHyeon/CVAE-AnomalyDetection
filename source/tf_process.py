@@ -11,10 +11,6 @@ def make_dir(path):
     try: os.mkdir(path)
     except: pass
 
-def gaussian_sample(batch_size, z_dim, mean=0, sigma=1):
-
-    return np.random.normal(loc=mean, scale=sigma, size=(batch_size, z_dim)).astype(np.float32)
-
 def gray2rgb(gray):
 
     rgb = np.ones((gray.shape[0], gray.shape[1], 3)).astype(np.float32)
