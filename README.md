@@ -3,7 +3,15 @@ Anomaly Detection using CVAE
 
 Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/CVAE">Related repository</a>].
 
+## Problem Definition
+<div align="center">
+  <img src="./figures/definition.png" width="300">  
+  <p>'Class-1' is defined as normal and the others are defined as abnormal.</p>
+</div>
+
 ## Results
+
+### Training
 <div align="center">
   <img src="./figures/restoring.png" width="800">  
   <p>Restoration result by CVAE.</p>
@@ -14,9 +22,15 @@ Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/
   <p>Latent vector space of training set, and reconstruction result of latent space walking.</p>
 </div>
 
+### Test
 <div align="center">
   <img src="./figures/latent_te.png" width="300">  
   <p>Latent vector space of test set.</p>
+</div>
+
+<div align="center">
+  <img src="./figures/test-box.png" width="400">  
+  <p>Box plot with encoding loss of test procedure.</p>
 </div>
 
 ## Environment
