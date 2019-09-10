@@ -3,6 +3,12 @@ Anomaly Detection using CVAE
 
 Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/CVAE">Related repository</a>].
 
+## Architecture
+<div align="center">
+  <img src="./figures/vae.png" width="400">  
+  <p>Simplified VAE architecture.</p>
+</div>
+
 ## Problem Definition
 <div align="center">
   <img src="./figures/definition.png" width="600">  
