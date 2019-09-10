@@ -5,7 +5,7 @@ Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/
 
 ## Problem Definition
 <div align="center">
-  <img src="./figures/definition.png" width="300">  
+  <img src="./figures/definition.png" width="600">  
   <p>'Class-1' is defined as normal and the others are defined as abnormal.</p>
 </div>
 
@@ -24,13 +24,8 @@ Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/
 
 ### Test
 <div align="center">
-  <img src="./figures/latent_te.png" width="300">  
-  <p>Latent vector space of test set.</p>
-</div>
-
-<div align="center">
-  <img src="./figures/test-box.png" width="400">  
-  <p>Box plot with encoding loss of test procedure.</p>
+  <img src="./figures/latent_te.png" width="350"><img src="./figures/test-box.png" width="400">    
+  <p>Left figure shows latent vector space of test set. Right figure shows box plot with encoding loss of test procedure.</p>
 </div>
 
 ## Environment
