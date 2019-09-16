@@ -32,10 +32,24 @@ class CVAE(object):
         self.optimizer = tf.compat.v1.train.AdamOptimizer( \
             self.leaning_rate, beta1=0.9, beta2=0.999).minimize(self.loss)
 
+        self.mse_r = self.mean_square_error(x1=self.x, x2=self.x_hat)
+
         tf.compat.v1.summary.scalar('restore_error', self.mean_restore)
         tf.compat.v1.summary.scalar('kl_divergence', self.mean_kld)
         tf.compat.v1.summary.scalar('total loss', self.loss)
         self.summaries = tf.compat.v1.summary.merge_all()
+
+    def mean_square_error(self, x1, x2):
+
+        data_dim = len(x1.shape)
+        if(data_dim == 4):
+            return tf.compat.v1.reduce_sum(tf.square(x1 - x2), axis=(1, 2, 3))
+        elif(data_dim == 3):
+            return tf.compat.v1.reduce_sum(tf.square(x1 - x2), axis=(1, 2))
+        elif(data_dim == 2):
+            return tf.compat.v1.reduce_sum(tf.square(x1 - x2), axis=(1))
+        else:
+            return tf.compat.v1.reduce_sum(tf.square(x1 - x2))
 
     def build_model(self, input, random_z, ksize=3):
 

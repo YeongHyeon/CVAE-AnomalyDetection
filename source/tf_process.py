@@ -171,7 +171,7 @@ def test(sess, saver, neuralnet, dataset, batch_size):
     while(True):
         x_te, y_te, terminator = dataset.next_test(1) # y_te does not used in this prj.
 
-        score_anomaly = sess.run(neuralnet.mean_restore, \
+        score_anomaly = sess.run(neuralnet.mse_r, \
             feed_dict={neuralnet.x:x_te, neuralnet.batch_size:x_te.shape[0]})
         if(y_te == 1): scores_normal.append(score_anomaly)
         else: scores_abnormal.append(score_anomaly)
@@ -189,6 +189,7 @@ def test(sess, saver, neuralnet, dataset, batch_size):
 
     plt.hist(scores_normal, alpha=0.5, label='Normal')
     plt.hist(scores_abnormal, alpha=0.5, label='Abnormal')
+    plt.ylim(0, 1000)
     plt.legend(loc='upper right')
     plt.savefig("histogram-test.png")
     plt.close()
@@ -201,7 +202,7 @@ def test(sess, saver, neuralnet, dataset, batch_size):
     while(True):
         x_te, y_te, terminator = dataset.next_test(1) # y_te does not used in this prj.
 
-        x_restore, z_enc, restore_loss = sess.run([neuralnet.x_hat, neuralnet.z_enc, neuralnet.mean_restore], \
+        x_restore, z_enc, restore_loss = sess.run([neuralnet.x_hat, neuralnet.z_enc, neuralnet.mse_r], \
             feed_dict={neuralnet.x:x_te, neuralnet.batch_size:x_te.shape[0]})
 
         loss4box[y_te[0]].append(restore_loss)
