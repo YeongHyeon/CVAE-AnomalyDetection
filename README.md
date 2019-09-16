@@ -29,9 +29,16 @@ Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/
 </div>
 
 ### Test
+#### z_dim = 2
 <div align="center">
-  <img src="./figures/latent_te.png" width="350"><img src="./figures/test-box.png" width="400">    
-  <p>Left figure shows latent vector space of test set. Right figure shows box plot with encoding loss of test procedure.</p>
+  <img src="./figures/latent_te_2.png" width="350"><img src="./figures/test-box_2.png" width="400">    
+  <p>Left figure shows latent vector space of test set. Right figure shows box plot with restoration loss of test procedure.</p>
+</div>
+
+#### z_dim = 128
+<div align="center">
+  <img src="./figures/latent_te_128.png" width="350"><img src="./figures/test-box_128.png" width="400">    
+  <p>Latent vector space of test set and box plot with restoration loss.</p>
 </div>
 
 ## Environment

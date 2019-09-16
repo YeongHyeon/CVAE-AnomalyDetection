@@ -82,9 +82,7 @@ class CVAE(object):
 
         z_params = self.fully_connected(input=fulcon1, num_inputs=int(fulcon1.shape[1]), \
             num_outputs=self.z_dim*2, activation="None", name="z_sigma")
-        z_mu = z_params[:, :self.z_dim]
-        z_sigma = z_params[:, self.z_dim:]
-
+        z_mu, z_sigma = self.split_z(z=z_params)
         z = self.sample_z(mu=z_mu, sigma=z_sigma) # reparameterization trick
 
         return z, z_mu, z_sigma
@@ -124,6 +122,15 @@ class CVAE(object):
             filter_size=[ksize, ksize, 16, 1], activation="sigmoid", name="convt3_3")
 
         return convt3_3
+
+    def split_z(self, z):
+
+        z_mu = z[:, :self.z_dim]
+        # z_mu = tf.compat.v1.clip_by_value(z_mu, -3+(1e-12), 3-(1e-12))
+        z_sigma = z[:, self.z_dim:]
+        z_sigma = tf.compat.v1.clip_by_value(z_sigma, 1e-12, 1-(1e-12))
+
+        return z_mu, z_sigma
 
     def sample_z(self, mu, sigma):
 

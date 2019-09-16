@@ -4,6 +4,8 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
+from sklearn.decomposition import PCA
+
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
 def make_dir(path):
@@ -108,9 +110,16 @@ def training(sess, saver, neuralnet, dataset, epochs, batch_size, normalize=True
         x_tr, y_tr, _ = dataset.next_train(batch_size=test_size, fix=True) # Initial batch
         x_restore, z_enc = sess.run([neuralnet.x_hat, neuralnet.z_enc], \
             feed_dict={neuralnet.x:x_tr, neuralnet.batch_size:x_tr.shape[0]})
+
         if(neuralnet.z_dim == 2):
             latent_plot(latent=z_enc, y=y_tr, n=dataset.num_class, \
                 savename=os.path.join("results", "tr_latent", "%08d.png" %(epoch)))
+        else:
+            pca = PCA(n_components=2)
+            pca_features = pca.fit_transform(z_enc)
+            latent_plot(latent=pca_features, y=y_tr, n=dataset.num_class, \
+                savename=os.path.join("results", "tr_latent", "%08d.png" %(epoch)))
+
         save_img(contents=[x_tr, x_restore, (x_tr-x_restore)**2], \
             names=["Input\n(x)", "Restoration\n(x to x-hat)", "Difference"], \
             savename=os.path.join("results", "tr_resotring", "%08d.png" %(epoch)))
@@ -158,21 +167,31 @@ def test(sess, saver, neuralnet, dataset, batch_size):
     result_list = ["inbound", "outbound"]
     for result_name in result_list: make_dir(path=os.path.join("test", result_name))
 
-    loss_list = []
+    scores_normal, scores_abnormal = [], []
     while(True):
         x_te, y_te, terminator = dataset.next_test(1) # y_te does not used in this prj.
-        restore_loss = sess.run(neuralnet.mean_restore, \
+
+        score_anomaly = sess.run(neuralnet.mean_restore, \
             feed_dict={neuralnet.x:x_te, neuralnet.batch_size:x_te.shape[0]})
-        if(y_te[0] == 1):
-            loss_list.append(restore_loss)
+        if(y_te == 1): scores_normal.append(score_anomaly)
+        else: scores_abnormal.append(score_anomaly)
 
         if(terminator): break
 
-    loss_list = np.asarray(loss_list)
-    loss_avg, loss_std = np.average(loss_list), np.std(loss_list)
-    outbound = loss_avg + (loss_std * 3)
-    print("Loss  avg: %.3f, std: %.3f" %(loss_avg, loss_std))
-    print("Outlier boundary: %.3f" %(outbound))
+    scores_normal = np.asarray(scores_normal)
+    scores_abnormal = np.asarray(scores_abnormal)
+    normal_avg, normal_std = np.average(scores_normal), np.std(scores_normal)
+    abnormal_avg, abnormal_std = np.average(scores_abnormal), np.std(scores_abnormal)
+    print("Noraml  avg: %.5f, std: %.5f" %(normal_avg, normal_std))
+    print("Abnoraml  avg: %.5f, std: %.5f" %(abnormal_avg, abnormal_std))
+    outbound = normal_avg + (normal_std * 3)
+    print("Outlier boundary of normal data: %.5f" %(outbound))
+
+    plt.hist(scores_normal, alpha=0.5, label='Normal')
+    plt.hist(scores_abnormal, alpha=0.5, label='Abnormal')
+    plt.legend(loc='upper right')
+    plt.savefig("histogram-test.png")
+    plt.close()
 
     fcsv = open("test-summary.csv", "w")
     fcsv.write("class, loss, outlier\n")
@@ -215,4 +234,9 @@ def test(sess, saver, neuralnet, dataset, batch_size):
 
     if(neuralnet.z_dim == 2):
         latent_plot(latent=z_enc_tot, y=y_te_tot, n=dataset.num_class, \
+            savename=os.path.join("test-latent.png"))
+    else:
+        pca = PCA(n_components=2)
+        pca_features = pca.fit_transform(z_enc_tot)
+        latent_plot(latent=pca_features, y=y_te_tot, n=dataset.num_class, \
             savename=os.path.join("test-latent.png"))
