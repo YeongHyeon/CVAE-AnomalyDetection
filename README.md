@@ -1,7 +1,7 @@
 Anomaly Detection using CVAE
 =====
 
-Example of Anomaly Detection using CVAE [<a href="https://github.com/YeongHyeon/CVAE">Related repository</a>].
+Example of Anomaly Detection using Convolutional Variational Auto-Encoder (CVAE) [<a href="https://github.com/YeongHyeon/CVAE">Related repository</a>].
 
 ## Architecture
 <div align="center">
