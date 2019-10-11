@@ -37,10 +37,9 @@ Example of Anomaly Detection using Convolutional Variational Auto-Encoder (CVAE)
 
 #### z_dim = 128
 <div align="center">
-  <img src="./figures/latent_te_128.png" width="350"><img src="./figures/test-box_128.png" width="400">    
-  <p>Latent vector space of test set and box plot with restoration loss.</p>
+  <img src="./figures/latent_te_128.png" width="350"><img src="./figures/test-box_128.png" width="400"><img src="./figures/histogram-test.png" width="440">
+  <p>Latent vector space of test set, box plot with restoration loss, and histogram of restoration loss.</p>
 </div>
-
 ## Environment
 * Python 3.7.4  
 * Tensorflow 1.14.0  
